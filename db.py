@@ -1,16 +1,18 @@
 #!/usr/bin/python
 
 import sqlite3
+from os import path
 from time import time
 from datetime import datetime
 
-db_name = "test.db"
+path.realpath(__file__)
+db_name = path.dirname(path.realpath(__file__)) + "/test.db"
 
 def create_db():
-    assert __name__=="__main__"
+    #assert __name__=="__main__"
     with sqlite3.connect(db_name) as conn:
         c = conn.cursor()
-        c.execute('''DROP TABLE 'plays';''');
+        c.execute('''DROP TABLE IF EXISTS  'plays';''');
         c.execute('''CREATE TABLE 'plays' (Id INTEGER PRIMARY KEY AUTOINCREMENT, DJ TEXT, Song TEXT, Date INTEGER );''');
         conn.commit();
 
@@ -24,7 +26,23 @@ def get_rows(print_=False):
             print("W bazie danych znajdują się %d rekordów" % a)
     return a
 
+def get_play_id(id):
+    with sqlite3.connect(db_name) as conn:
+        c = conn.cursor()
+        c.execute('''SELECT Id, DJ, Song, Date  FROM 'plays' WHERE Id=?;''', (id,))
+        res = c.fetchall()
+        if(len(res)>0):
+            res = res[0]
+            p = Play();
+            p.id = res[0]
+            p.DJ = res[1]
+            p.song = res[2]
+            p.date = res[3]
+            return p
+        return None
+    
 def get_day(timestamp = int(time()) ):
+    print(timestamp)
     timestamp_low = timestamp - (timestamp % 86400) # 86400 is number of seconds a day
     timestamp_high = timestamp_low + 86400
     print("data pobrana z bazy danych to %s." % datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d'))
@@ -38,7 +56,7 @@ def get_day(timestamp = int(time()) ):
             p.DJ = data[1]
             p.song = data[2]
             p.date = data[3]
-            res.append(p)
+            res.append(p.__dict__)
     return res
 
     
@@ -59,7 +77,7 @@ class Play:
             if self.id is None:
                 c.execute('''INSERT INTO 'plays' (DJ, Song , Date ) VALUES (?,?,?);''', (self.DJ, self.song, self.date));
                 self.id = c.lastrowid
-                print("saved with id=%s" % str(self.id))
+                #print("saved with id=%s" % str(self.id))
             else:
                 c.execute('''UPDATE plays SET DJ = ?, Song=?, Date=? WHERE Id=?;''', (self.DJ, self.song, self.date, self.id));
             conn.commit();
@@ -87,14 +105,13 @@ class Play:
             conn.commit();
         self.id = None
         return 0
-    
 
 if __name__ == "__main__":
     
                                       #    tests   #
     
     a = get_rows()
-    b = Play(DJ = "DJ", song = "test", date = 0);
+    b = Play(DJ = "DJ", song = "test");
     b.save();
     if not a+1 == get_rows():
         print("failed test 1");
@@ -109,7 +126,7 @@ if __name__ == "__main__":
         print("passed test 2");
         
         
-    d = Play(DJ="DeeJay", song="joke",date=0)
+    d = Play(DJ="DeeJay", song="joke")
     if(d.check()==2):
         print("passed test 3");
     else:
