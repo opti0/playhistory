@@ -1,0 +1,106 @@
+<html>
+    <head>
+        <script src="/app/jquery-3.2.1.min.js"></script>
+        
+    </head>
+    <style>
+        td{
+            padding:5px 10px;
+        }
+        thead{
+            font-weight:900;
+        }
+        form{
+            float:left;
+        }
+        #date{
+            margin-left:10px;
+        }
+    </style>
+    <body>
+        <form action="/" method="GET">
+            <input type="submit" value="Wróc" />
+        </form>
+        <form method="GET" id="date" method="/api/stats/">
+            <input type="text" placeholder="start date YYYY-MM-DD" id="startd" name="startd">
+            <input type="text" placeholder="stop date YYYY-MM-DD" id="stopd" name="stopd">
+            <span id="error"></span>
+            <input type="hidden" name="startts" value=0 id="startts">
+            <input type="hidden" name="stopts" value=0 id="stopts">
+            <input id="submbutton" type="submit" value="Pokaż wybrane" disabled="disabled">
+        </form>
+        <form action="/app/stats/" method="GET">
+            <input type="submit" value="Pokaż wszystko" />
+        </form>
+        <h1> Statystyki </h1>
+        <span> {% if date_start == 0 or date_stop == 0 %}Cały okres{% else %} {{date_start|display}} - {{date_stop | display}} {% endif %} </span>
+        {% if data %}
+        <table>
+            <thead>
+                <tr>
+                    <td> Inicjały </td> <td> Ilość puszczonych utworów </td>
+                </tr>
+            </thead>
+            <tbody id="statshere">
+                {% for stat in data %}
+                    <tr>
+                        <td> {{stat.name}} </td> <td> {{stat.score}} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p><b>Nie puszczano utworów</b></p>
+        {% endif %}
+        <script>
+            $("#date").trigger('reset');
+            var status_start = check_date($("#startd")), status_stop = check_date($("#stopd"));
+            update();
+            function update(){
+                if(status_start==status_stop && status_start==1){
+                    $('input[name="startts"]').val(Date.parse($("#startd").val())/1000);
+                    $('input[name="stopts"]').val(Date.parse($("#stopd").val())/1000);
+                    $("#submbutton").removeAttr('disabled');
+                }else{
+                    $("#submbutton").attr('disabled','disabled');
+                }
+            }
+            function check_date(el){
+                var d = new Date(el.val());
+                if ( Object.prototype.toString.call(d) === "[object Date]" ) {
+                    if ( ! isNaN( d.getTime() ) ) {
+                        el.css('background-color', 'lime');
+                        return 1;
+                    }
+                }
+                el.css('background-color', 'red');
+                return 0;
+            }
+            function date_str(UNIX_timestamp){
+                var a = new Date(UNIX_timestamp * 1000);
+                var year = a.getFullYear();
+                var month = ("0" + (a.getMonth() + 1)).slice(-2)
+                var date = ("0" + (a.getDate())).slice(-2)
+                return date + '.' + month + '.' + year;
+            }
+            $("#startd").keyup(function(){
+                status_start = check_date($(this));
+                update();
+            });
+            $("#stopd").keyup(function(){
+                status_stop = check_date($(this));
+                update();
+            });
+            
+            $("#date").submit(function(event){
+                console.log($(this).serialize());
+            });
+        
+        </script>
+        <hr>
+        <b>Play History</b><br>
+        Project - Paweł Dietrich
+
+    </body>
+    
+</html>

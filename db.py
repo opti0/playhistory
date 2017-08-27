@@ -9,6 +9,16 @@ import sys
 path.realpath(__file__)
 db_name = path.dirname(path.realpath(__file__)) + "/test.db"
 
+def get_stats(tstart = 0, tstop=0):
+    ret = []
+    with sqlite3.connect(db_name) as conn:
+        c = conn.cursor()
+        c.execute('''SELECT DJ, COUNT(*) AS score FROM 'plays' WHERE ? OR Date BETWEEN ? AND ? GROUP BY DJ ORDER BY score DESC;''', (tstart==tstop==0,tstart, tstop))
+        res = c.fetchall()
+        for dj in res:
+            ret.append({"name": dj[0], "score":dj[1]})
+    return ret
+
 def create_db():
     #assert __name__=="__main__"
     with sqlite3.connect(db_name) as conn:

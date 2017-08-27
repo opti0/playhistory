@@ -6,10 +6,25 @@
     </head>
 
     <body>
-        <table id="day">
-            <tr style="font-weight:900;text-align:center;">
-                <td>id</td><td>song</td><td>DJ</td><td>date</td>
-            </tr>
+        <form action="/" method="GET">
+            <input type="submit" value="Wróc" />
+        </form>
+        <form id="add">
+            <input type="text" name="DJ" placeholder="Inicjały">
+            <input type="text" name="song" placeholder="Utwór (nazwa i wykonawaca):">
+            <input type="submit" value="dodaj">
+        </form>
+        <h1>Dzisiaj</h1>
+        <table>
+            <thead>
+                <tr style="font-weight:900;text-align:center;">
+                    <td>{debug} ID </td><td>Utwór</td><td>Inicjały</td><td>data</td>
+                </tr>
+            </thead>
+
+            <tbody id="day">
+                <tr><td colspan="4">ładowanie<td></tr>
+            </tbody>
         </table>
     </body>
     
@@ -20,7 +35,20 @@
     </style>
     
     <script>
-    
+        function reload(){
+            $.ajax({
+                type: 'GET',
+                cache: false,
+                url: '/api/v1/day/',
+                dataType: 'json',
+                success: function(data) {
+                    $('#day').empty();
+                    for( play in data.plays){
+                        $('#day').append("<tr><td>"+data.plays[play].id+"</td><td>"+data.plays[play].song+"</td><td>"+data.plays[play].DJ+"</td><td>"+date_str(data.plays[play].date)+"</td></tr>");
+                    }
+                }
+            });
+        }
 
         function date_str(UNIX_timestamp){
             var a = new Date(UNIX_timestamp * 1000);
@@ -29,29 +57,37 @@
             var date = ("0" + (a.getDate())).slice(-2)
             return date + '.' + month + '.' + year;
         }
-        $.ajax({
-            type: 'POST',
-            cache: false,
-            contentType: "application/json",
-            url: '/api/v1/play/',
-            dataType: 'json',
-            data: JSON.stringify({ DJ: 'test', song: 'tset'}),
-            success: function(data) {
-                alert('ajax');
+        $("#add").submit(function( event ){
+            event.preventDefault();
+            var values = {};
+            $.each($(this).serializeArray(), function(i, field) {
+                values[field.name] = field.value;
+            });
+            console.log(values);
+            if( (! "DJ" in values) || (! "song" in values) || (values["DJ"] == "") || (values["song"]=="")){
+                alert("Wypełnij wszystkie pola");
+                
+            }else{
+                $.ajax({
+                    type: 'POST',
+                    cache: false,
+                    contentType: "application/json",
+                    url: '/api/v1/play/',
+                    dataType: 'json',
+                    data: JSON.stringify({ DJ: values["DJ"], song: values["song"]}),
+                    success: function(data) {
+                        reload();
+                        $("#add").trigger('reset');
+                    }
+                });
             }
+            
+            
         });
-        $.ajax({
-            type: 'GET',
-            cache: false,
-            url: '/api/v1/day/',
-            dataType: 'json',
-            success: function(data) {
-                for( play in data.plays){
-                    $('#day').append("<tr><td>"+data.plays[play].id+"</td><td>"+data.plays[play].song+"</td><td>"+data.plays[play].DJ+"</td><td>"+date_str(data.plays[play].date)+"</td></tr>");
-                }
-            }
-        });
+        
+        reload();
+        
     </script>
-    Play History
+    <hr><b>Play History</b><br>
     Project CEO - Paweł Dietrich
 </html>

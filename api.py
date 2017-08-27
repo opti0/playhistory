@@ -1,5 +1,5 @@
-from flask import Flask, jsonify, make_response, abort,request, send_from_directory, redirect
-import db
+from flask import Flask, jsonify, make_response, abort,request, send_from_directory, redirect, render_template
+import db, datetime
 
 DEBUG = False
 
@@ -13,6 +13,20 @@ def root():
 def app_root():
     return redirect("/app/index.html", code=302)
 
+@app.route('/app/stats/')
+def stats():
+    start = request.args.get('startts')
+    stop = request.args.get('stopts')
+    if(start is None or stop is None):
+        start=stop=0
+    else:
+        try:
+            start = int(start)
+            stop = int(stop) + 86399
+        except:
+            start = 0
+            stop = 0
+    return render_template('stats.html', data=db.get_stats(start,stop), date_start=start, date_stop=stop)
 
 @app.route('/api/v1/day/', methods=['GET'])
 def current_day():
@@ -23,7 +37,7 @@ def day_from_timestamp(timestamp):
     return jsonify({'plays':db.get_day(timestamp)})
 
 @app.route('/api/v1/play/<int:play_id>', methods=['GET'])
-def get_play_by_id(play_id):
+def get_play_by_id(plastrftimey_id):
     play = db.get_play_id(play_id)
     if play is None:
         abort(404)
@@ -67,6 +81,9 @@ def pul_play_id(play_id):
 def send_static_www(path):
     return send_from_directory('www', path)
 
+@app.template_filter('display')
+def display_date_from_timestamp(ts):
+    return datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
 
 @app.errorhandler(404)
 def not_found(error):
