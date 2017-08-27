@@ -1,0 +1,57 @@
+<html>
+
+<meta charset="utf-8">
+     <head>
+        <script src="/app/jquery-3.2.1.min.js"></script>
+    </head>
+
+    <body>
+        <table id="day">
+            <tr style="font-weight:900;text-align:center;">
+                <td>id</td><td>song</td><td>DJ</td><td>date</td>
+            </tr>
+        </table>
+    </body>
+    
+    <style>
+        td{
+        padding:5px 10px;
+        }
+    </style>
+    
+    <script>
+    
+
+        function date_str(UNIX_timestamp){
+            var a = new Date(UNIX_timestamp * 1000);
+            var year = a.getFullYear();
+            var month = ("0" + (a.getMonth() + 1)).slice(-2)
+            var date = ("0" + (a.getDate())).slice(-2)
+            return date + '.' + month + '.' + year;
+        }
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            contentType: "application/json",
+            url: '/api/v1/play/',
+            dataType: 'json',
+            data: JSON.stringify({ DJ: 'test', song: 'tset'}),
+            success: function(data) {
+                alert('ajax');
+            }
+        });
+        $.ajax({
+            type: 'GET',
+            cache: false,
+            url: '/api/v1/day/',
+            dataType: 'json',
+            success: function(data) {
+                for( play in data.plays){
+                    $('#day').append("<tr><td>"+data.plays[play].id+"</td><td>"+data.plays[play].song+"</td><td>"+data.plays[play].DJ+"</td><td>"+date_str(data.plays[play].date)+"</td></tr>");
+                }
+            }
+        });
+    </script>
+    Play History
+    Project CEO - Paweł Dietrich
+</html>

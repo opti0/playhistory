@@ -1,8 +1,18 @@
-from flask import Flask, jsonify, make_response, abort,request
+from flask import Flask, jsonify, make_response, abort,request, send_from_directory, redirect
 import db
 
+DEBUG = False
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
+
+@app.route('/')
+def root():
+    return redirect("/app/index.html", code=302)
+
+@app.route('/app/')
+def app_root():
+    return redirect("/app/index.html", code=302)
+
 
 @app.route('/api/v1/day/', methods=['GET'])
 def current_day():
@@ -52,9 +62,15 @@ def pul_play_id(play_id):
     play.save()
     return jsonify({'status':play.check(), 'play':play.__dict__})
 
+#static files
+@app.route('/app/<path:path>')
+def send_static_www(path):
+    return send_from_directory('www', path)
+
+
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=DEBUG)

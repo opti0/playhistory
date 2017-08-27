@@ -4,6 +4,7 @@ import sqlite3
 from os import path
 from time import time
 from datetime import datetime
+import sys
 
 path.realpath(__file__)
 db_name = path.dirname(path.realpath(__file__)) + "/test.db"
@@ -15,6 +16,7 @@ def create_db():
         c.execute('''DROP TABLE IF EXISTS  'plays';''');
         c.execute('''CREATE TABLE 'plays' (Id INTEGER PRIMARY KEY AUTOINCREMENT, DJ TEXT, Song TEXT, Date INTEGER );''');
         conn.commit();
+    print("Stworzono czystą bazę danych [",db_name,"]")
 
 def get_rows(print_=False):
     a = -1;
@@ -106,10 +108,7 @@ class Play:
         self.id = None
         return 0
 
-if __name__ == "__main__":
-    
-                                      #    tests   #
-    
+def tests():
     a = get_rows()
     b = Play(DJ = "DJ", song = "test");
     b.save();
@@ -130,7 +129,7 @@ if __name__ == "__main__":
     if(d.check()==2):
         print("passed test 3");
     else:
-        print("failed test 3");
+        print("failed test 3");test
         
         
     d.save();
@@ -158,3 +157,24 @@ if __name__ == "__main__":
         print("passed test 7");
     else:
         print("failed test 7");        
+
+
+if __name__ == "__main__":
+    if(len(sys.argv)==1):
+        print('''   Użycie: python3 '''+sys.argv[0]+''' <nazwa czynnosci>
+            
+        Dostępne czynności:
+        - test - uruchom testy
+        - create - tworzy czystą bazę danych
+''')
+    else:
+        if(sys.argv[1]=='test'):
+            tests()
+            quit()
+        if(sys.argv[1]=='create'):
+            create_db()
+            quit()
+        
+        print("Nieznana czynnosc")
+    
+    
