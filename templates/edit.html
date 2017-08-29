@@ -1,29 +1,20 @@
-<html>
-
-<meta charset="utf-8">
-     <head>
-        <script src="/static/jquery-3.2.1.min.js"></script>
-    </head>
-
-    <body>
+{% extends "base.html" %}
+{% block page_title %}Edycja utworu{% endblock %}
+{% block content %}
         <form action="{{ret}}" method="GET">
-            <input type="submit" value="Wróc" />
+            <input type="submit" value="Wróc" class="btn btn-warning"/>
         </form>
-        <form action="/" method="GET">
-            <input type="submit" value="Home" />
-        </form>
-        <h1>Edycja utworu</h1>
+        <p><h1>Edycja utworu</h1>
         <form id="add">
             <input type="text" name="DJ" placeholder="Inicjały" value="{{play.DJ}}">
             <input type="text" name="song" placeholder="Utwór (nazwa i wykonawaca):" value="{{play.song}}">
             <input type="hidden" name="date">
-            <input type="submit" value="Uaktualnij">
+            <input type="submit" value="Uaktualnij" class="btn btn-primary">
         </form>
-        
+        </p>
     </body>
     
     <script>
-        
         $("#add").submit(function( event ){
             event.preventDefault();
             var values = {};
@@ -42,6 +33,7 @@
                     dataType: 'json',
                     data: JSON.stringify({ date: {{play.date}}, DJ: values["DJ"], song: values["song"]}),
                     success: function(data) {
+                        //console.log(data);
                         //location.reload();
                         window.location.replace({{ret}});
                     }
@@ -50,8 +42,5 @@
             
             
         });
-        
     </script>
-    <hr><b>Play History</b><br>
-    Project CEO - Paweł Dietrich
-</html>
+{% endblock %}

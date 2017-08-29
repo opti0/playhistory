@@ -1,98 +1,80 @@
-<html>
-
-<meta charset="utf-8">
-     <head>
-        <script src="/static/jquery-3.2.1.min.js"></script>
-    </head>
-
-    <body>
-        <form action="/" method="GET">
-            <input type="submit" value="Home" />
-        </form>
-        <form action="/report/" method="GET">
-            <input type="submit" value="Pobierz raport" />
-        </form>
-        <form id="add">
-            <input type="text" name="DJ" placeholder="Inicjały">
-            <input type="text" name="song" placeholder="Utwór (nazwa i wykonawaca):">
-            <input type="submit" value="dodaj">
-        </form>
-        <h1>Dzisiaj</h1>
-        {% if songs %}<table>
-            <thead>
-                <tr style="font-weight:900;text-align:center;">
-                    {% if debug==True %}<td>ID </td>{% endif %}<td>Inicjały</td><td>Utwór</td><td>Modyfikacje</td>
-                </tr>
-            </thead>
-
-            <tbody id="day">
-                {% for song in songs %}
-                <tr>
-                    {% if debug==True %} <td> {{song.id}}</td> {% endif %}
-                    <td> {{song.DJ}} </td>
-                    <td> {{song.song}} </td>
-                    <td> <button type="button" onclick="del_play({{song.id}})"> <img width="16px" src="/static/clear_icon.png" alt="X"/> </button> 
-                    <button type="button" onclick="location.href = '/edit/{{song.id}}?ret=/day/';"> <img width="16px" src="/static/edit_icon.png" alt="Edit"/> </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-            <p><b>Nie puszczano utworów</b></p>
-        {% endif %}
-    </body>
+{% extends "base.html" %}
+{% block page_title %}Widok Dnia{% endblock %}
+{% block content %}
+<style>
     
-    <style>
-        td{
-        padding:5px 10px;
-        }
-    </style>
+</style>
+
+<form action="/report/" method="GET">
+    <input type="submit" value="Pobierz raport" class="btn btn-secondary"/>
+</form>
+<p><form id="add">
+    <input type="submit" value="dodaj" class="btn btn-primary">
+    <input type="text" name="DJ" placeholder="Inicjały">
+    <input type="text" name="song" placeholder="Utwór (nazwa i wykonawaca):">
     
-    <script>
-    
-        function del_play(id){
-            $.ajax({
-                type: 'DELETE',
-                cache: false,
-                contentType: "application/json",
-                url: '/api/v1/play/'+String(id),
-                dataType: 'json',
-                success: function(data) {
-                    location.reload();
-                }
-            });
-            return 1;
-        }
+</form></p>
+<h1>Dzisiaj</h1>
+{% if songs %}<table>
+    <thead>
+        <tr style="font-weight:900;text-align:center;">
+            {% if debug==True %}<td>ID </td>{% endif %}<td>Inicjały</td><td>Utwór</td><td>Modyfikacje</td>
+        </tr>
+    </thead>
+
+    <tbody id="day">
+        {% for song in songs %}
+        <tr>
+            {% if debug==True %} <td> {{song.id}}</td> {% endif %}
+            <td> {{song.DJ}} </td>
+            <td> {{song.song}} </td>
+            <td> <button type="button" onclick="del_play({{song.id}})" class="btn btn-sm btn-danger"> <img width="16px" src="/static/clear_icon.png" alt="X"/> </button> 
+            <button type="button" onclick="location.href = '/edit/{{song.id}}?ret=/day/';" class="btn btn-sm btn-warning"> <img width="16px" src="/static/edit_icon.png" alt="Edit"/> </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p><b>Nie puszczano utworów</b></p>
+{% endif %}
         
-        $("#add").submit(function( event ){
-            event.preventDefault();
-            var values = {};
-            $.each($(this).serializeArray(), function(i, field) {
-                values[field.name] = field.value;
-            });
-            if( (! "DJ" in values) || (! "song" in values) || (values["DJ"] == "") || (values["song"]=="")){
-                alert("Wypełnij wszystkie pola");
-                
-            }else{
-                $.ajax({
-                    type: 'POST',
-                    cache: false,
-                    contentType: "application/json",
-                    url: '/api/v1/play/',
-                    dataType: 'json',
-                    data: JSON.stringify({ DJ: values["DJ"], song: values["song"]}),
-                    success: function(data) {
-                        $("#add").trigger('reset');
-                        location.reload();
-                    }
-                });
+<script>
+function del_play(id){
+    $.ajax({
+        type: 'DELETE',
+        cache: false,
+        contentType: "application/json",
+        url: '/api/v1/play/'+String(id),
+        dataType: 'json',
+        success: function(data) {
+            location.reload();
+        }
+    });
+    return 1;
+}
+$("#add").submit(function( event ){
+    event.preventDefault();
+    var values = {};
+    $.each($(this).serializeArray(), function(i, field) {
+        values[field.name] = field.value;
+    });
+    if( (! "DJ" in values) || (! "song" in values) || (values["DJ"] == "") || (values["song"]=="")){
+        alert("Wypełnij wszystkie pola");
+    }else{
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            contentType: "application/json",
+            url: '/api/v1/play/',
+            dataType: 'json',
+            data: JSON.stringify({ DJ: values["DJ"], song: values["song"]}),
+            success: function(data) {
+                $("#add").trigger('reset');
+                location.reload();
             }
-            
-            
         });
-        
-    </script>
-    <hr><b>Play History</b><br>
-    Project CEO - Paweł Dietrich
-</html>
+    }
+});
+</script>
+{% endblock %}

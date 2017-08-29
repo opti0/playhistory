@@ -2,7 +2,7 @@ from flask import Flask, jsonify, make_response, abort,request, send_from_direct
 import db, datetime
 from time import time
 
-DEBUG = False
+DEBUG = True
 
 app = Flask(__name__, static_url_path='')
 

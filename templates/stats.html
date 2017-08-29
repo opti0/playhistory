@@ -1,37 +1,28 @@
-<html>
-    <head>
-        <script src="/static/jquery-3.2.1.min.js"></script>
-        
-    </head>
+{% extends "base.html" %}
+{% block page_title %}Statystyki{% endblock %}
+{% block content %}
     <style>
-        td{
-            padding:5px 10px;
-        }
         thead{
             font-weight:900;
         }
-        form{
-            float:left;
-        }
         #date{
-            margin-left:10px;
+            margin-right:10px;
         }
     </style>
     <body>
-        <form action="/" method="GET">
-            <input type="submit" value="Home" />
-        </form>
+        <p>
         <form method="GET" id="date" method="/api/stats/">
-            <input type="text" placeholder="start date YYYY-MM-DD" id="startd" name="startd">
-            <input type="text" placeholder="stop date YYYY-MM-DD" id="stopd" name="stopd">
+            <input type="text" autocomplete=off placeholder="start date YYYY-MM-DD" id="startd" name="startd">
+            <input type="text" autocomplete=off placeholder="stop date YYYY-MM-DD" id="stopd" name="stopd">
             <span id="error"></span>
             <input type="hidden" name="startts" value=0 id="startts">
             <input type="hidden" name="stopts" value=0 id="stopts">
-            <input id="submbutton" type="submit" value="Pokaż wybrane" disabled="disabled">
+            <input class="btn btn-primary" id="submbutton" type="submit" value="Pokaż wybrane" disabled="disabled">
         </form>
         <form action="/stats/" method="GET">
-            <input type="submit" value="Pokaż wszystko" />
+            <input class="btn btn-secondary" type="submit" value="Pokaż wszystko" />
         </form>
+        </p>
         <h1> Statystyki </h1>
         <span> {% if date_start == 0 or date_stop == 0 %}Cały okres{% else %} {{date_start|display}} - {{date_stop | display}} {% endif %} </span>
         {% if data %}
@@ -69,11 +60,15 @@
                 var d = new Date(el.val());
                 if ( Object.prototype.toString.call(d) === "[object Date]" ) {
                     if ( ! isNaN( d.getTime() ) ) {
-                        el.css('background-color', 'lime');
+                        //el.css('background-color', 'lime');
+                        el.addClass('bg-success');
+                        el.removeClass('bg-warning');
                         return 1;
                     }
                 }
-                el.css('background-color', 'red');
+                //el.css('background-color', 'red');
+                el.addClass('bg-warning');
+                el.removeClass('bg-success');
                 return 0;
             }
             function date_str(UNIX_timestamp){
@@ -97,10 +92,4 @@
             });
         
         </script>
-        <hr>
-        <b>Play History</b><br>
-        Project - Paweł Dietrich
-
-    </body>
-    
-</html>
+{% endblock %}
