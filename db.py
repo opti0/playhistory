@@ -53,8 +53,10 @@ def get_play_id(id):
             return p
         return None
     
-def get_day(timestamp = int(time()) ):
-    print(timestamp)
+def get_day(timestamp = -1 ):
+    #print(timestamp)
+    if(timestamp < 0):
+        timestamp = int(time())
     timestamp_low = timestamp - (timestamp % 86400) # 86400 is number of seconds a day
     timestamp_high = timestamp_low + 86400
     print("data pobrana z bazy danych to %s." % datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d'))
@@ -78,10 +80,10 @@ class Play:
     song = ""
     date = 0
     
-    def __init__(self, DJ = None, song = None, date=int(time())):
+    def __init__(self, DJ = None, song = None, date=None):
         self.DJ = DJ
         self.song = song
-        self.date = date 
+        self.date = int(time()) if date is None else date
             
     def save(self):
         with sqlite3.connect(db_name) as conn:

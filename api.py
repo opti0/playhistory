@@ -7,13 +7,14 @@ app = Flask(__name__, static_url_path='')
 
 @app.route('/')
 def root():
-    return redirect("/app/index.html", code=302)
+    return render_template('index.html')
 
-@app.route('/app/')
-def app_root():
-    return redirect("/app/index.html", code=302)
+@app.route('/day/')
+def show_day_template():
+    
+    return render_template('day.html', songs = db.get_day(), debug=DEBUG)
 
-@app.route('/app/stats/')
+@app.route('/stats/')
 def stats():
     start = request.args.get('startts')
     stop = request.args.get('stopts')
@@ -27,6 +28,8 @@ def stats():
             start = 0
             stop = 0
     return render_template('stats.html', data=db.get_stats(start,stop), date_start=start, date_stop=stop)
+
+##      api methods
 
 @app.route('/api/v1/day/', methods=['GET'])
 def current_day():
@@ -54,8 +57,10 @@ def add_new_play():
 @app.route('/api/v1/play/<int:play_id>', methods=['DELETE'])
 def del_play_id(play_id):
     play = db.get_play_id(play_id)
-    if play is None or not request.json:
+    print(1)
+    if play is None:
         abort(404)
+    print(2)
     play.delete()
     return jsonify({'status':play.check()})
 
@@ -76,15 +81,17 @@ def pul_play_id(play_id):
     play.save()
     return jsonify({'status':play.check(), 'play':play.__dict__})
 
-#static files
-@app.route('/app/<path:path>')
+###         static files
+@app.route('/static/<path:path>')
 def send_static_www(path):
-    return send_from_directory('www', path)
+    return send_from_directory('static', path)
 
+### template_tags
 @app.template_filter('display')
 def display_date_from_timestamp(ts):
     return datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
 
+### other
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)

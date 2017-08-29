@@ -2,7 +2,7 @@
 
 <meta charset="utf-8">
      <head>
-        <script src="/app/jquery-3.2.1.min.js"></script>
+        <script src="/static/jquery-3.2.1.min.js"></script>
     </head>
 
     <body>
@@ -15,17 +15,29 @@
             <input type="submit" value="dodaj">
         </form>
         <h1>Dzisiaj</h1>
-        <table>
+        {% if songs %}<table>
             <thead>
                 <tr style="font-weight:900;text-align:center;">
-                    <td>{debug} ID </td><td>Utwór</td><td>Inicjały</td><td>data</td>
+                    {% if debug==True %}<td>ID </td>{% endif %}<td>Inicjały</td><td>Utwór</td><td>Modyfikacje</td>
                 </tr>
             </thead>
 
             <tbody id="day">
-                <tr><td colspan="4">ładowanie<td></tr>
+                {% for song in songs %}
+                <tr>
+                    {% if debug==True %} <td> {{song.id}}</td> {% endif %}
+                    <td> {{song.DJ}} </td>
+                    <td> {{song.song}} </td>
+                    <td> <button type="button" onclick="del_play({{song.id}})"> <img width="16px" src="/static/clear_icon.png" alt="X"/> </button> 
+                    <button type="button"> <img width="16px" src="/static/edit_icon.png" alt="X"/> </button>
+                    </td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
+        {% else %}
+            <p><b>Nie puszczano utworów</b></p>
+        {% endif %}
     </body>
     
     <style>
@@ -35,28 +47,21 @@
     </style>
     
     <script>
-        function reload(){
+    
+        function del_play(id){
             $.ajax({
-                type: 'GET',
+                type: 'DELETE',
                 cache: false,
-                url: '/api/v1/day/',
+                contentType: "application/json",
+                url: '/api/v1/play/'+String(id),
                 dataType: 'json',
                 success: function(data) {
-                    $('#day').empty();
-                    for( play in data.plays){
-                        $('#day').append("<tr><td>"+data.plays[play].id+"</td><td>"+data.plays[play].song+"</td><td>"+data.plays[play].DJ+"</td><td>"+date_str(data.plays[play].date)+"</td></tr>");
-                    }
+                    location.reload();
                 }
             });
+            return 1;
         }
-
-        function date_str(UNIX_timestamp){
-            var a = new Date(UNIX_timestamp * 1000);
-            var year = a.getFullYear();
-            var month = ("0" + (a.getMonth() + 1)).slice(-2)
-            var date = ("0" + (a.getDate())).slice(-2)
-            return date + '.' + month + '.' + year;
-        }
+        
         $("#add").submit(function( event ){
             event.preventDefault();
             var values = {};
@@ -76,16 +81,14 @@
                     dataType: 'json',
                     data: JSON.stringify({ DJ: values["DJ"], song: values["song"]}),
                     success: function(data) {
-                        reload();
                         $("#add").trigger('reset');
+                        location.reload();
                     }
                 });
             }
             
             
         });
-        
-        reload();
         
     </script>
     <hr><b>Play History</b><br>
