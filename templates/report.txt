@@ -1,0 +1,12 @@
+Raport Dnia
+{% if songs %}
+Dnia {{date|display}} r. odtworzono utwory:
+    
+{% for song in songs %}{{loop.index}}. {{song.song}} ({{song.DJ}})    
+{% endfor %}
+{% else %}
+Dnia {{date|display}} r. nie odtworzono żadnych utworów.
+
+{% endif %}
+GNU GPL v3
+Play History - Paweł Dietrich

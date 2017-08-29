@@ -1,20 +1,30 @@
-from flask import Flask, jsonify, make_response, abort,request, send_from_directory, redirect, render_template
+from flask import Flask, jsonify, make_response, abort,request, send_from_directory, redirect, render_template, Response
 import db, datetime
+from time import time
 
 DEBUG = False
 
 app = Flask(__name__, static_url_path='')
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def root():
     return render_template('index.html')
 
-@app.route('/day/')
+@app.route('/day/', methods=['GET'])
 def show_day_template():
-    
     return render_template('day.html', songs = db.get_day(), debug=DEBUG)
 
-@app.route('/stats/')
+@app.route('/edit/<int:playid>', methods=['GET'])
+def edit_play_object(playid):
+    play = db.get_play_id(playid)
+    if play is None:
+        abort(404)
+    ret = request.args.get('ret')
+    if(ret is None):
+        ret = '/day/'
+    return render_template('edit.html', play = play, ret=ret, debug=DEBUG)
+
+@app.route('/stats/', methods=['GET'])
 def stats():
     start = request.args.get('startts')
     stop = request.args.get('stopts')
@@ -28,6 +38,16 @@ def stats():
             start = 0
             stop = 0
     return render_template('stats.html', data=db.get_stats(start,stop), date_start=start, date_stop=stop)
+
+##      raport generator
+
+@app.route('/report/', methods=['GET'])
+def get_day_report():
+    t = request.args.get('t')
+    if t is None:
+        t = time()
+    content = render_template('report.txt', songs = db.get_day(t), date=t)
+    return Response(content, mimetype="text/plain", headers={"Content-disposition":"attachment;filename=report.txt"})
 
 ##      api methods
 

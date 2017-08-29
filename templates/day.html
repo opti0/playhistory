@@ -7,7 +7,10 @@
 
     <body>
         <form action="/" method="GET">
-            <input type="submit" value="Wróc" />
+            <input type="submit" value="Home" />
+        </form>
+        <form action="/report/" method="GET">
+            <input type="submit" value="Pobierz raport" />
         </form>
         <form id="add">
             <input type="text" name="DJ" placeholder="Inicjały">
@@ -29,7 +32,7 @@
                     <td> {{song.DJ}} </td>
                     <td> {{song.song}} </td>
                     <td> <button type="button" onclick="del_play({{song.id}})"> <img width="16px" src="/static/clear_icon.png" alt="X"/> </button> 
-                    <button type="button"> <img width="16px" src="/static/edit_icon.png" alt="X"/> </button>
+                    <button type="button" onclick="location.href = '/edit/{{song.id}}?ret=/day/';"> <img width="16px" src="/static/edit_icon.png" alt="Edit"/> </button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -68,7 +71,6 @@
             $.each($(this).serializeArray(), function(i, field) {
                 values[field.name] = field.value;
             });
-            console.log(values);
             if( (! "DJ" in values) || (! "song" in values) || (values["DJ"] == "") || (values["song"]=="")){
                 alert("Wypełnij wszystkie pola");
                 
