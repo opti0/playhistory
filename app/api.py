@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, make_response, abort,request, send_from_directory, redirect, render_template, Response
-import db, datetime
+import db, datetime, csv
 from time import time
+from io import StringIO
 
 DEBUG = False
 
@@ -52,6 +53,17 @@ def stats():
             start = 0
             stop = 0
     return render_template('stats.html', data=db.get_stats(start,stop), date_start=start, date_stop=stop)
+
+##      db export
+@app.route('/download/', methods=['GET'])
+def download():
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerows(db.generate_all())
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=db_%s.csv" % datetime.datetime.fromtimestamp(time()).strftime("%d_%m_%Y")
+    output.headers["Content-type"] = "text/csv"
+    return output
 
 ##      raport generator
 

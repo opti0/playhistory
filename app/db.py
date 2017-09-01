@@ -9,14 +9,13 @@ import sys
 path.realpath(__file__)
 db_name = path.dirname(path.realpath(__file__)) + "/test.db"
 
-def get_dates():
+def generate_all():
+    yield ['ID','Inicjały','Utwór', 'Data']
     with sqlite3.connect(db_name) as conn:
         c = conn.cursor()
-        c.execute('''SELECT DISTINCT DATE(Date) FROM 'plays';''', (tstart==tstop==0,tstart, tstop))
-        res = c.fetchall()
-        for dj in res:
-            ret.append({"name": dj[0], "score":dj[1]})
-    
+        db =  c.execute('''SELECT Id, DJ, Song, Date FROM 'plays';''')
+        for data in db:
+            yield data
     
 def get_stats(tstart = 0, tstop=0):
     ret = []
