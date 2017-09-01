@@ -1,0 +1,12 @@
+#sample file: /lib/systemd/system/playhistory.service 
+
+[Unit]
+Description=Play History local server
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/home/planeg/ph/run.sh
+
+[Install]
+WantedBy=multi-user.target

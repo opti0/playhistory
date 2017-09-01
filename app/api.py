@@ -2,7 +2,7 @@ from flask import Flask, jsonify, make_response, abort,request, send_from_direct
 import db, datetime
 from time import time
 
-DEBUG = True
+DEBUG = False
 
 app = Flask(__name__, static_url_path='')
 
@@ -51,21 +51,22 @@ def get_day_report():
 
 ##      api methods
 
-@app.route('/api/v1/day/', methods=['GET'])
+"""@app.route('/api/v1/day/', methods=['GET'])
 def current_day():
     return jsonify({'plays':db.get_day(), })
 
 @app.route('/api/v1/day/<int:timestamp>', methods=['GET'])
 def day_from_timestamp(timestamp):
     return jsonify({'plays':db.get_day(timestamp)})
-
+"""
+"""
 @app.route('/api/v1/play/<int:play_id>', methods=['GET'])
 def get_play_by_id(plastrftimey_id):
     play = db.get_play_id(play_id)
     if play is None:
         abort(404)
     return jsonify({'play':db.get_play_id(play_id).__dict__})
-
+"""
 @app.route('/api/v1/play/', methods=['POST'])
 def add_new_play():
     if not request.json or not 'DJ' in request.json or not 'song' in request.json:
@@ -114,7 +115,8 @@ def display_date_from_timestamp(ts):
 ### other
 @app.errorhandler(404)
 def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+    #return make_response(jsonify({'error': 'Not found'}), 404)
+    return make_response('<center style="font-size:60vh;margin-top:20vh;"> 404 </center>')
 
 if __name__ == '__main__':
-    app.run(debug=DEBUG)
+    app.run(debug=DEBUG,host="localhost", port=int("80"))
