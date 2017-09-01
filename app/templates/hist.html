@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block page_title %}Statystyki{% endblock %}
+{% block content %}
+    <style>
+        thead{
+            font-weight:900;
+        }
+        #date{
+            margin-right:10px;
+        }
+    </style>
+    <body>
+        <h1> Dane historyczne </h1>
+
+        <p>
+        <form method="GET" id="date" action="/day/">
+            <input type="text" autocomplete=off placeholder="data YYYY-MM-DD" id="dateid">
+            <input type="hidden" name="t" value=0 id="t">
+            <input class="btn btn-primary" id="submbutton" type="submit" value="Zobacz datę" disabled="disabled">
+        </form>
+        <form action="/day/" method="GET">
+            <input class="btn btn-secondary" type="submit" value="Pokaż Dzisiaj" />
+        </form>
+        </p>
+
+        <script>
+            $("#date").trigger('reset');
+            var status_date = check_date($("#dateid"));
+            update();
+            function update(){
+                if(status_date==1){
+                    $('input[name="t"]').val(Date.parse($("#dateid").val())/1000);
+                    $("#submbutton").removeAttr('disabled');
+                }else{
+                    $("#submbutton").attr('disabled','disabled');
+                }
+            }
+            function check_date(el){
+                var d = new Date(el.val());
+                if ( Object.prototype.toString.call(d) === "[object Date]" ) {
+                    if ( ! isNaN( d.getTime() ) ) {
+                        el.addClass('bg-success');
+                        el.removeClass('bg-warning');
+                        return 1;
+                    }
+                }
+                el.addClass('bg-warning');
+                el.removeClass('bg-success');
+                return 0;
+            }
+            $("#dateid").keyup(function(){
+                status_date = check_date($(this));
+                update();
+            });
+            
+            $("#date").submit(function(event){
+                //event.preventDefault();
+                console.log($(this).serialize());
+            });
+        
+        </script>
+{% endblock %}

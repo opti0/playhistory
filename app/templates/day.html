@@ -7,6 +7,7 @@
 
 <form action="/report/" method="GET">
     <input type="submit" value="Pobierz raport" class="btn btn-secondary"/>
+    <input type="hidden" value="{{t}}" name="t" />
 </form>
 <p><form id="add">
     <input type="submit" value="dodaj" class="btn btn-primary">
@@ -14,7 +15,7 @@
     <input type="text" name="song" placeholder="Utwór (nazwa i wykonawaca):">
     
 </form></p>
-<h1>Dzisiaj</h1>
+<h1>{{day_name}}</h1>
 {% if songs %}<table>
     <thead>
         <tr style="font-weight:900;text-align:center;">
@@ -29,7 +30,7 @@
             <td> {{song.DJ}} </td>
             <td> {{song.song}} </td>
             <td> <button type="button" onclick="del_play({{song.id}})" class="btn btn-sm btn-danger"> <img width="16px" src="/static/clear_icon.png" alt="X"/> </button> 
-            <button type="button" onclick="location.href = '/edit/{{song.id}}?ret=/day/';" class="btn btn-sm btn-warning"> <img width="16px" src="/static/edit_icon.png" alt="Edit"/> </button>
+            <button type="button" onclick="location.href = '/edit/{{song.id}}?ret=/day/?t={{t}}';" class="btn btn-sm btn-warning"> <img width="16px" src="/static/edit_icon.png" alt="Edit"/> </button>
             </td>
         </tr>
         {% endfor %}

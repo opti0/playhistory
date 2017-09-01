@@ -9,6 +9,15 @@ import sys
 path.realpath(__file__)
 db_name = path.dirname(path.realpath(__file__)) + "/test.db"
 
+def get_dates():
+    with sqlite3.connect(db_name) as conn:
+        c = conn.cursor()
+        c.execute('''SELECT DISTINCT DATE(Date) FROM 'plays';''', (tstart==tstop==0,tstart, tstop))
+        res = c.fetchall()
+        for dj in res:
+            ret.append({"name": dj[0], "score":dj[1]})
+    
+    
 def get_stats(tstart = 0, tstop=0):
     ret = []
     with sqlite3.connect(db_name) as conn:
@@ -59,7 +68,7 @@ def get_day(timestamp = -1 ):
         timestamp = int(time())
     timestamp_low = timestamp - (timestamp % 86400) # 86400 is number of seconds a day
     timestamp_high = timestamp_low + 86400
-    print("data pobrana z bazy danych to %s." % datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d'))
+    #print("data pobrana z bazy danych to %s." % datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d'))
     res = []
     with sqlite3.connect(db_name) as conn:
         c = conn.cursor()

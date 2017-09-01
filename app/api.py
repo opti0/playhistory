@@ -10,9 +10,23 @@ app = Flask(__name__, static_url_path='')
 def root():
     return render_template('index.html')
 
+@app.route('/hist/', methods=['GET'])
+def history_data():
+    return render_template('hist.html')
+
 @app.route('/day/', methods=['GET'])
 def show_day_template():
-    return render_template('day.html', songs = db.get_day(), debug=DEBUG)
+    t = request.args.get('t')
+    day_name="Dzisiaj"
+    if t is None:
+        t = time()
+    else:
+        try:
+            t = int(t)
+            day_name = datetime.datetime.fromtimestamp(t).strftime("%d.%m.%Y r.")
+        except:
+            t = time()
+    return render_template('day.html', songs = db.get_day(t), debug=DEBUG, t=t, day_name=day_name)
 
 @app.route('/edit/<int:playid>', methods=['GET'])
 def edit_play_object(playid):
@@ -46,8 +60,16 @@ def get_day_report():
     t = request.args.get('t')
     if t is None:
         t = time()
+        print("t is None");
+    else:
+        try:
+            t=int(t)
+            print("t is orig");
+        except:
+            t = time()
+            print("t is Str");
     content = render_template('report.txt', songs = db.get_day(t), date=t)
-    return Response(content, mimetype="text/plain", headers={"Content-disposition":"attachment;filename=report.txt"})
+    return Response(content, mimetype="text/plain", headers={"Content-disposition":"attachment;filename=report_%s.txt"%datetime.datetime.fromtimestamp(t).strftime("%d_%m_%Y")})
 
 ##      api methods
 
@@ -110,7 +132,7 @@ def send_static_www(path):
 ### template_tags
 @app.template_filter('display')
 def display_date_from_timestamp(ts):
-    return datetime.datetime.fromtimestamp(ts).strftime("%Y-%m-%d")
+    return datetime.datetime.fromtimestamp(ts).strftime("%d.%m.%Y r.")
 
 ### other
 @app.errorhandler(404)
