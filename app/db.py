@@ -16,7 +16,7 @@ def generate_all():
         db =  c.execute('''SELECT Id, DJ, Song, Date FROM 'plays';''')
         for data in db:
             yield data
-    
+
 def get_stats(tstart = 0, tstop=0):
     ret = []
     with sqlite3.connect(db_name) as conn:
@@ -31,8 +31,10 @@ def create_db():
     #assert __name__=="__main__"
     with sqlite3.connect(db_name) as conn:
         c = conn.cursor()
-        c.execute('''DROP TABLE IF EXISTS  'plays';''');
+        c.execute('''DROP TABLE IF EXISTS  'plays';''')
+        c.execute('''DROP TABLE IF EXISTS  'posts';''')
         c.execute('''CREATE TABLE 'plays' (Id INTEGER PRIMARY KEY AUTOINCREMENT, DJ TEXT, Song TEXT, Date INTEGER );''');
+        c.execute('''CREATE TABLE 'posts' (Id INTEGER PRIMARY KEY AUTOINCREMENT, FBID TEXT, Text TEXT, Error INTEGER, Date INTEGER);''')
         conn.commit();
     print("Stworzono czystą bazę danych [",db_name,"]")
 
@@ -45,6 +47,58 @@ def get_rows(print_=False):
         if print_:
             print("W bazie danych znajdują się %d rekordów" % a)
     return a
+
+def facebook_post(timestamp = -1):
+    if timestamp < 0:
+        timestamp = int(time()/86400)# 86400 is number of seconds a day
+    with sqlite3.connect(db_name) as conn:
+        c = conn.cursor()
+        c.execute('''SELECT Id,FBID,Text,Error,Date FROM posts WHERE Date=? ORDER BY Id DESC;''', (timestamp,));
+        res = c.fetchall()
+        if(len(res)>0):
+            res = res[0]
+        else:
+            res = [None,None, "",1,timestamp]
+        return {
+            'id': res[0],
+            'FBID': res[1],
+            'text': res[2],
+            'error': False if res[3]==0 else True,
+            'date': res[4]
+        }
+
+def update_facebook_post(fbpost = {}):
+    if not "FBID" in fbpost:
+        print("NOFBID")
+        return
+    if not "date" in fbpost:
+        fbpost["date"] = int(time()/86400)# 86400 is number of seconds a day
+    if not "error" in fbpost:
+        fbpost["error"] = False
+    if not "text" in fbpost:
+        fbpost["text"] = ""
+    with sqlite3.connect(db_name, isolation_level=None) as conn:
+        c = conn.cursor()
+        if not "id" in fbpost or fbpost["id"] is None:
+            val = (fbpost["FBID"], fbpost["text"], int(fbpost["error"]), fbpost["date"])
+            #print(val)
+            c.execute(''' INSERT INTO posts (FBID,Text,Error,Date) VALUES (?,?,?,?); ''' , val)
+            #print("INESET")
+        else:
+            val = (fbpost["FBID"], fbpost["text"], int(fbpost["error"]), fbpost["date"], fbpost["id"])
+            c.execute(''' UPDATE posts SET FBID = ?, Text = ? , Error = ?, Date = ? WHERE Id = ?''', val)
+            #print("UPDATE")
+        conn.commit()
+        #print("WRITTEN")
+        #print(facebook_post())
+
+
+def list_facebook_posts(page = 0):
+
+    pass
+
+
+
 
 def get_play_id(id):
     with sqlite3.connect(db_name) as conn:
@@ -60,7 +114,7 @@ def get_play_id(id):
             p.date = res[3]
             return p
         return None
-    
+
 def get_day(timestamp = -1 ):
     #print(timestamp)
     if(timestamp < 0):
@@ -81,18 +135,19 @@ def get_day(timestamp = -1 ):
             res.append(p.__dict__)
     return res
 
-    
+
+
 class Play:
     id = None
     DJ = ""
     song = ""
     date = 0
-    
+
     def __init__(self, DJ = None, song = None, date=None):
         self.DJ = DJ
         self.song = song
         self.date = int(time()) if date is None else date
-            
+
     def save(self):
         with sqlite3.connect(db_name) as conn:
             c = conn.cursor()
@@ -103,7 +158,7 @@ class Play:
             else:
                 c.execute('''UPDATE plays SET DJ = ?, Song=?, Date=? WHERE Id=?;''', (self.DJ, self.song, self.date, self.id));
             conn.commit();
-            
+
     #check the status of Play class
     # 0 -> Object is saved, all is ok
     # 1 -> Object is not updated, call save function
@@ -117,7 +172,7 @@ class Play:
             if res == 0:
                 return 1;
         return 0;
-        
+
     def delete(self):
         if self.id is None:
             return 1
@@ -136,53 +191,53 @@ def tests():
         print("failed test 1");
     else:
         print("passed test 1");
-        
-        
+
+
     b.save()
     if a+2 == get_rows():
         print("failed test 2");
     else:
         print("passed test 2");
-        
-        
+
+
     d = Play(DJ="DeeJay", song="joke")
     if(d.check()==2):
         print("passed test 3");
     else:
         print("failed test 3");test
-        
-        
+
+
     d.save();
     if(d.check()==0):
         print("passed test 4");
     else:
         print("failed test 4");
-        
-        
+
+
     d.date = 1
     if(d.check()==1):
         print("passed test 5");
     else:
         print("failed test 5");
-        
-        
+
+
     d.save();
     if(d.check()==0):
         print("passed test 6");
     else:
         print("failed test 6");
-        
+
     b.delete();
     if(b.check()==2):
         print("passed test 7");
     else:
-        print("failed test 7");        
+        print("failed test 7");
 
 
 if __name__ == "__main__":
     if(len(sys.argv)==1):
         print('''   Użycie: python3 '''+sys.argv[0]+''' <nazwa czynnosci>
-            
+
         Dostępne czynności:
         - test - uruchom testy
         - create - tworzy czystą bazę danych
@@ -194,7 +249,5 @@ if __name__ == "__main__":
         if(sys.argv[1]=='create'):
             create_db()
             quit()
-        
+
         print("Nieznana czynnosc")
-    
-    

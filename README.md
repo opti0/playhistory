@@ -14,7 +14,7 @@ Projekt dla szkolnego radiowęzła (LO III Wrocław). PH jest prostym narzędzie
 2. `# python3 app/db.py create` aby stworzyć bazę danych
 3. `# cp playhistory.service to /lib/systemd/system/playhistory.service`
 4. `# systemctl enable playhistory && systemctl status playhistory`
-5. Wejdź w przeglądarce _localhost__
+5. Wejdź w przeglądarce _localhost_
 
 ### wyczyść bazę danych
 

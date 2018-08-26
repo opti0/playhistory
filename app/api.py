@@ -150,7 +150,7 @@ def display_date_from_timestamp(ts):
 @app.errorhandler(404)
 def not_found(error):
     #return make_response(jsonify({'error': 'Not found'}), 404)
-    return make_response('<center style="font-size:60vh;margin-top:20vh;"> 404 </center>')
+    return make_response('<center style="font-size:6vh;margin-top:20vh;"> 404 </center>')
 
 if __name__ == '__main__':
     app.run(debug=DEBUG,host="localhost", port=int("80"))
