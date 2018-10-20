@@ -4,12 +4,20 @@ from time import time
 from io import StringIO
 
 DEBUG = False
+#path to file to be displayed on index page
+INDEX = '/opt/index.html'
 
 app = Flask(__name__, static_url_path='')
 
 @app.route('/', methods=['GET'])
 def root():
-    return render_template('index.html')
+    contents="<p>Set home page in %s !</p>" % (str(INDEX) )
+    try:
+        with open(INDEX, 'r') as indexfile:
+            contents = indexfile.readlines()
+    except:
+        pass
+    return render_template('index.html', index=contents)
 
 @app.route('/hist/', methods=['GET'])
 def history_data():
