@@ -92,8 +92,7 @@ def current_day():
 @app.route('/api/v1/day/<int:timestamp>', methods=['GET'])
 def day_from_timestamp(timestamp):
     return jsonify({'plays':db.get_day(timestamp)})
-"""
-"""
+
 @app.route('/api/v1/play/<int:play_id>', methods=['GET'])
 def get_play_by_id(plastrftimey_id):
     play = db.get_play_id(play_id)
@@ -153,4 +152,8 @@ def not_found(error):
     return make_response('<center style="font-size:6vh;margin-top:20vh;"> 404 </center>')
 
 if __name__ == '__main__':
+    print("""PlayHistory  Copyright (C) 2017  Paweł Dietrich
+    This program comes with ABSOLUTELY NO WARRANTY; for details check LICENSE file.
+    This is free software, and you are welcome to redistribute it
+    under certain conditions.""")
     app.run(debug=DEBUG,host="localhost", port=int("80"))
