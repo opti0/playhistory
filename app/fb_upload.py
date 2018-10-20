@@ -18,7 +18,7 @@ def gen_text():
 	return message
 
 def gen_silence():
-	return "Dzisiaj (%s) w radiowęźle słuchaliśmy ciszy:\n" % (datetime.now().strftime("%d.%m.%Y r.")) + FOOTER
+	return "Dzisiaj (%s) w radiowęźle słuchaliśmy ciszy.\n" % (datetime.now().strftime("%d.%m.%Y r.")) + FOOTER
 
 def update_post():
 	graph = facebook.GraphAPI(access_token=KEY)
@@ -33,7 +33,7 @@ def update_post():
 		if latest_update["text"] == latest_text:
 			return
 
-		print("change found")
+		print("change found @ %s" % (datetime.now().strftime("%d.%m.%Y r.")))
 		if latest_update["FBID"] is None:
 			#need to make new post!
 			res = graph.put_object(parent_object='me', connection_name='feed',message=latest_text)
@@ -44,7 +44,10 @@ def update_post():
 				print("failed to make post %s" % (res))
 				return #error
 		else:
-			res = graph.put_object(parent_object=latest_update["FBID"], connection_name='',message=latest_text)
+			try:
+				res = graph.put_object(parent_object=latest_update["FBID"], connection_name='',message=latest_text)
+			except:
+				res = {}
 			#need to update current post!
 			if not ("success" in res and res["success"] == True):
 				res = graph.put_object(parent_object='me', connection_name='feed',message=latest_text)
