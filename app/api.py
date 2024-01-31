@@ -1,14 +1,15 @@
-from flask import Flask, jsonify, make_response, abort,request, send_from_directory, redirect, render_template, Response
+from flask import Flask, jsonify, make_response, abort, request, send_from_directory, redirect, render_template, Response
 import db, datetime, csv
 from time import time
 from io import StringIO
-
+from flask_mail import Message, Mail
+from mail import get_emails
 DEBUG = False
 #path to file to be displayed on index page
 INDEX = '/opt/index.html'
 
 app = Flask(__name__, static_url_path='')
-
+mail = Mail(app)
 @app.route('/', methods=['GET'])
 def root():
     contents="<p>Set home page in %s !</p>" % (str(INDEX) )
@@ -61,6 +62,11 @@ def stats():
             start = 0
             stop = 0
     return render_template('stats.html', data=db.get_stats(start,stop), date_start=start, date_stop=stop)
+
+@app.route('/requests/', methods=['GET'])
+def display_emails():
+    emails = get_emails()
+    return render_template('emails.html', emails=emails)
 
 ##      db export
 @app.route('/download/', methods=['GET'])
@@ -157,10 +163,15 @@ def display_date_from_timestamp(ts):
 @app.errorhandler(404)
 def not_found(error):
     #return make_response(jsonify({'error': 'Not found'}), 404)
-    return make_response('<center style="font-size:6vh;margin-top:20vh;"> 404 </center>')
+    return make_response('<center style="font-size:6vh;margin-top:20vh;"> 404 - Nie znaleziono </center>')
+
+@app.errorhandler(500)
+def not_found(error):
+    #return make_response(jsonify({'error': 'Not found'}), 404)
+    return make_response('<center style="font-size:6vh;margin-top:20vh;"> 500 - Błąd serwera </center>')
 
 if __name__ == '__main__':
-    print("""PlayHistory  Copyright (C) 2017  Paweł Dietrich
+    print("""PlayHistory  Copyright (C) 2017 - 2024  Paweł Dietrich & Maciej Radecki
     This program comes with ABSOLUTELY NO WARRANTY; for details check LICENSE file.
     This is free software, and you are welcome to redistribute it
     under certain conditions.""")

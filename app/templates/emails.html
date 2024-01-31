@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block page_title %}Zamówienia{% endblock %}
+{% block content %}
+    
+    <ul>
+        {% for email in emails %}
+            <li>
+                <strong>Data:</strong> {{ email.date_sent }}<br>
+                <strong>Treść:</strong> {{ email.body }}
+            </li>
+            <br>
+        {% endfor %}
+    </ul>
+{% endblock %}
