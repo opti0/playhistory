@@ -14,7 +14,7 @@ pip3 install virtualenv
 virtualenv app/venv -p $(which python3)
 
 #install requirements
-app/venv/bin/pip3 install -r pip3req.txt
+app/venv/bin/pip3 install -r requirements.txt
 
 # make database
 app/venv/bin/python3 app/db.py create
