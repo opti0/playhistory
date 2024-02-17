@@ -1,14 +1,56 @@
 {% extends "base.html" %}
 {% block page_title %}Zamówienia{% endblock %}
 {% block content %}
-    
-    <ul>
-        {% for email in emails %}
-            <li>
-                <strong>Data:</strong> {{ email.date_sent }}<br>
-                <strong>Treść:</strong> {{ email.body }}
-            </li>
-            <br>
-        {% endfor %}
-    </ul>
+<script>
+   function deleteEmail(msgId) {
+    // Wysłanie żądania do API w celu usunięcia wiadomości
+    fetch(`/delete/${msgId}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success == true ) {
+                // Usunięcie wiersza z tabeli po pomyślnym usunięciu
+                const rows = document.querySelectorAll("table tbody tr");
+                rows.forEach(row => {
+                    const firstColumn = row.cells[0].innerText; // Pobierz tekst z pierwszej komórki
+                    if (firstColumn.trim() === msgId) { // Sprawdź czy zawiera dokładnie msgId
+                        row.parentNode.removeChild(row);
+                    }
+                });
+            } 
+            else {
+                alert('Wystąpił błąd podczas usuwania wiadomości2.');
+            }
+        })
+        .catch(error => {
+            console.error('Wystąpił błąd:', error);
+            alert('Wystąpił błąd podczas usuwania wiadomości.');
+        });
+}
+
+</script>
+
+<table>
+    <tbody>
+        {% if emails %}
+            {% for email in emails %}    
+                <tr>   
+                    <td>{{ email.msg_id }}</td>
+                    <td><strong>Data:</strong> {{ email.date_sent }}</td>
+                    <td>{{ email.body }}</td>
+                    <td>
+                        <button type="button" onclick="deleteEmail('{{ email.msg_id }}')" class="btn btn-sm btn-danger">
+                            <img width="16px" src="/static/clear_icon.png" alt="X"/> 
+                        </button> 
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="4"><h3>Brak zamówień</h3></td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+
 {% endblock %}

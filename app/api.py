@@ -3,7 +3,7 @@ import db, datetime, csv
 from time import time
 from io import StringIO
 from flask_mail import Message, Mail
-from mail import get_emails
+from mail import get_emails, delete_email
 DEBUG = False
 #path to file to be displayed on index page
 INDEX = '/opt/index.html'
@@ -68,6 +68,17 @@ def display_emails():
     emails = get_emails()
     return render_template('emails.html', emails=emails)
 
+@app.route('/delete/<msg_id>', methods=['DELETE'])
+def delete_emails(msg_id):
+    try:
+        result = delete_email(msg_id)
+        if result[1]==200:
+            return jsonify({'success': True, 'msgId': msg_id}), 200
+        else:
+            return jsonify({'success': False, 'error': 'Nie udało się usunąć wiadomości1.'}), 500
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    
 ##      db export
 @app.route('/download/', methods=['GET'])
 def download():
